@@ -8,11 +8,10 @@ rang_mtry(
   data,
   fmla,
   m_vec,
-  train = NULL,
   seed = 1,
-  importance = "impurity",
-  num.trees = 500,
-  respect.unordered.factors = TRUE
+  num.trees = 200,
+  respect.unordered.factors = TRUE,
+  ...
 )
 }
 \arguments{
@@ -22,15 +21,12 @@ rang_mtry(
 
 \item{m_vec}{Integer vector of values of tuning parameter \code{mtry}.}
 
-\item{train}{Optional integer vector giving row indices to be used in training set. Remaining rows are used for
-validation. If default \code{train = NULL} is used then all data is used for training and there is no validation.}
+\item{seed, num.trees, respect.unordered.factors}{Optional arguments passed to \code{ranger()}. Defaults are
+\code{1}, \code{200} and \code{TRUE} respectively.}
 
-\item{seed}{Integer. Random number seed used for fitting each model.}
-
-\item{importance, num.trees, respect.unordered.factors}{Optional arguments passed to \code{ranger()}. Defaults are
-\code{"impurity"}, \code{500} and \code{TRUE} respectively.}
+\item{...}{Other arguments passed to \code{ranger}.}
 }
 \description{
 Fits \code{ranger()} models for a given range of values of \code{mtry}. Output is a table and graph giving
-errors for OOB training data and optional validation data.
+OOB errors.
 }

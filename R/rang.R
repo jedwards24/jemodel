@@ -33,30 +33,23 @@ rang_roc_cut <- function(rf, actual, class_name = NULL, plot = TRUE) {
   roc_cut(rf$predictions[, class_name], actual, plot = plot)
 }
 
-# Fits a series of random forest models using the ranger package with different values of mtry, as given in m_vec.
-# Returns a table of oob and test errors.
-
 #########################################################################################
 # rang_mtry: Tune ranger models for mtry.
 #########################################################################################
-#'
 #' Tune ranger models for `mtry`
 #'
 #' Fits `ranger()` models for a given range of values of `mtry`. Output is a table and graph giving
-#' errors for OOB training data and optional validation data.
+#' OOB errors.
 #'
 #' @param data A data frame containing both input and target variables.
 #' @param fmla A formula for the model.
 #' @param m_vec Integer vector of values of tuning parameter `mtry`.
-#' @param train Optional integer vector giving row indices to be used in training set. Remaining rows are used for
-#'   validation. If default `train = NULL` is used then all data is used for training and there is no validation.
-#' @param seed Integer. Random number seed used for fitting each model.
-#' @param importance,num.trees,respect.unordered.factors Optional arguments passed to `ranger()`. Defaults are
-#'   `"impurity"`, `500` and `TRUE` respectively.
+#' @param seed,num.trees,respect.unordered.factors Optional arguments passed to `ranger()`. Defaults are
+#'   `1`, `200` and `TRUE` respectively.
+#' @param ... Other arguments passed to `ranger`.
 #'
 #' @export
-rang_mtry <- function(data, fmla, m_vec, train = NULL, seed = 1, importance = "impurity", num.trees = 500,
-                      respect.unordered.factors = TRUE) {
+rang_mtry <- function(data, fmla, m_vec, seed = 1, num.trees = 200, respect.unordered.factors = TRUE, ...) {
   if (!is.atomic(m_vec) | !is.numeric(m_vec) | length(m_vec) == 0) stop("`m_vec` must be a non-empty numeric vector.",
                                                                         call. = FALSE)
   n_inputs <- length(attributes(stats::terms(fmla, data = data))$term.labels)
@@ -64,10 +57,8 @@ rang_mtry <- function(data, fmla, m_vec, train = NULL, seed = 1, importance = "i
                                   max(m_vec),
                                   ", but there are ",
                                   n_inputs, " input variables in the model.")
-  if (is.null(train)) train <- 1 : nrow(data)
   target_name <- fmla[[2]]
-  valid <- dplyr::pull(data, !!target_name)[-train]
-  target <- dplyr::pull(data, !!target_name)[train]
+  target <- dplyr::pull(data, !!target_name)
   nn <- length(m_vec)
   oob_err <- double(nn)
   valid_err <- double(nn)
@@ -75,28 +66,19 @@ rang_mtry <- function(data, fmla, m_vec, train = NULL, seed = 1, importance = "i
   cat("mtry completed: ")
   for(i in 1 : nn) {
     mtry <- m_vec[i]
-    set.seed(seed)
-    time[i] <- system.time(rf <- ranger::ranger(fmla, data = data[train, ],
-                                        importance = importance, num.trees = num.trees, mtry = mtry,
-                                        respect.unordered.factors = respect.unordered.factors))[3]
+    time[i] <- system.time(rf <- ranger::ranger(fmla, data = data, num.trees = num.trees, mtry = mtry,
+                                                seed = seed,
+                                                respect.unordered.factors = respect.unordered.factors,
+                                                write.forest = FALSE, ...))[3]
     oob_err[i] <- rf$prediction.error
-    if (length(valid) > 0) {
-      pred <- predict(rf, data[-train, ])$predictions
-      if(is.factor(target)){
-        valid_err[i] <- mean(valid != pred)
-      }else{
-        valid_err[i] <- mean((valid - pred) ^ 2)
-      }
-    }
     cat(mtry," ")
   }
   cat("\n")
-  res <- tibble::tibble(mtry = m_vec, valid_err, oob_err, time)
-  if (length(valid) == 0) res <- dplyr::select(res, -valid_err)
-  reslong <- tidyr::gather(res, key = "metric", value = "error", -time, -mtry)
-  g <- ggplot2::ggplot(reslong, ggplot2::aes(x = .data$mtry, y = .data$error, colour = .data$metric)) +
+  res <- tibble::tibble(mtry = m_vec, oob_err, time)
+  g <- ggplot2::ggplot(res, ggplot2::aes(x = .data$mtry, y = .data$oob_err)) +
     ggplot2::geom_line() +
-    ggplot2::geom_point()
+    ggplot2::geom_point() +
+    ggplot2::ylab("OOB Error")
   print(g)
   res
 }

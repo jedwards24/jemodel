@@ -5,7 +5,7 @@ set.seed(21)
 dt <- ggplot2::diamonds %>%
   dplyr::mutate(top = ifelse(cut == "Ideal", 1, 0) %>% factor(levels = c(1, 0))) %>%
   dplyr::select(-cut) %>%
-  dplyr::sample_n(100)
+  dplyr::sample_n(1000)
 
 rf <- ranger::ranger(top ~ . , dt, seed = 20, keep.inbag = T, num.trees = 1000)
 rf2 <- ranger::ranger(top ~ . , dt, seed = 20, keep.inbag = F, num.trees = 1000)

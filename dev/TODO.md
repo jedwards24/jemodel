@@ -2,9 +2,7 @@
 
 ## General
 
-+ I can't find how to import '.' so have removed it from code instead.
-  - I have seen it added as `globalVariables(".")` in tidyr in the tidyr.R script.
-+ NEWS file and version increment.
++ NEWS file.
 
 ## Existing functions
 
