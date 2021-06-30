@@ -22,7 +22,7 @@ roc_cut <- function(pred, actual, plot = T) {
   y <- perf@y.values[[1]]
   p <- roc_pred@cutoffs[[1]]
   d = x^2 + (y - 1)^2
-  ind = which(d == min(d))
+  ind = which.min(d)
 
   # Plot
   if(plot){
