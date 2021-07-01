@@ -27,3 +27,4 @@ Imports:
     glmnet,
     magrittr,
     rlang
+Config/testthat/edition: 3
