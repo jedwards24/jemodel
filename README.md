@@ -1,7 +1,7 @@
 
 # jemodel
 
-The goal of jemodel is to provide some helper functions for some aspects of modelling (mainly the glmnet and ranger packages).
+Provides some helper functions for modelling (mainly the glmnet and ranger packages).
 
 This package is in very early development.
 

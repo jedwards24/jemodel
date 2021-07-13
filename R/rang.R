@@ -142,7 +142,7 @@ rang_oob_err <- function(rf, data, start = 5L, by = 5L, plot = TRUE) {
   for (i in 1 : ntr){
     inbag_mat[, i] <- rf$inbag.counts[[i]]
   }
-  oob_mat <- dplyr::if_else(inbag_mat > 0, NA_real_, predict(rf, data, predict.all = T)$predictions) %>%
+  oob_mat <- dplyr::if_else(inbag_mat > 0, NA_real_, predict(rf, data, predict.all = TRUE)$predictions) %>%
     matrix(nrow = nrow(inbag_mat))
 
   len_ntv <- length(n_trees_vec)
@@ -152,8 +152,8 @@ rang_oob_err <- function(rf, data, start = 5L, by = 5L, plot = TRUE) {
   }
   res <- tibble::tibble(num.trees = n_trees_vec,
                 total = colMeans(errs, na.rm = TRUE),
-                class_1 = colMeans(errs[target == 1, ], na.rm = T),
-                class_2 = colMeans(errs[target == 2, ], na.rm = T)
+                class_1 = colMeans(errs[target == 1, ], na.rm = TRUE),
+                class_2 = colMeans(errs[target == 2, ], na.rm = TRUE)
   )
   res_long <- tidyr::gather(res, key = "pred", value = "error_rate", -.data$num.trees)
   if (plot){

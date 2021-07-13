@@ -22,3 +22,33 @@ rang_mtry(dt, top ~ ., 1:8, num.trees = 100)
 dt[1, 2] <- NA
 count_nas2(dt, all = T)
 count_matches2(dt, c("F", "I1"), all = T, sort = T)
+
+# one-hot -----------
+one_hot(yield~ ., npk) %>% typeof()
+nm1 <- model.matrix(yield~ ., npk) %>% colnames
+nm2 <- one_hot(yield~ ., npk) %>% colnames
+nm1
+nm2
+parsnip::contr_one_hot
+#compare with makeX()
+# Add to notes?
+library(tidyverse)
+library(glmnet)
+library(edwards)
+dt <- slice_sample(diamonds, n = 100)
+dt <- mpg %>%
+  mutate(across(where(is.character), as.factor))
+
+x1 <- makeX(dt)
+head(x1)
+dim(x1)
+colnames(x1)
+x2 <- one_hot_mm(~., dt)
+nm1 <- colnames(x1)
+nm2 <- colnames(x2)
+
+identical(x1, x2)
+compare_sets(nm1, nm2)
+setdiff(nm1, nm2)
+compare_sets(nm1, nm2, summary = FALSE) %>% prinf
+

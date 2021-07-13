@@ -1,6 +1,6 @@
 #' @keywords internal
 #' @importFrom dplyr if_else
-#' @importFrom stats predict coef
+#' @importFrom stats predict coef model.matrix
 #' @importFrom rlang .data :=
 "_PACKAGE"
 
