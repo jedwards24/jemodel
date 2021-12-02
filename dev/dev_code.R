@@ -15,6 +15,13 @@ dt <- ggplot2::diamonds %>%
 dt
 dt$clarity %>% levels
 
+
+xmat <- model.matrix(top ~ ., dt)[, -1]
+colnames(xmat)
+
+set.seed(22)
+fit0 <- cv.glmnet(x=xmat, y = dt$top, family="binomial", nfolds = 3)
+
 xmat <- model.matrix(top ~ . * table, dt)[, -1]
 colnames(xmat)
 
@@ -25,6 +32,8 @@ colnames(xmat)
 glmnet_to_table(fit, names(dt), s = "lambda.min")
 glmnet_to_table(fit, names(dt))
 glmnet_to_table(fit)
+gg <- glmnet_to_table(fit, names(dt))
+gg %>% tidyr::separate(.data$name, c("name01", "name02", "nm"), sep = ":", remove = FALSE, fill = "right")
 
 
 glmnet_to_table(fit, names(dt), s = 10^-3)
@@ -41,12 +50,81 @@ plot(fit2)
 colnames(xmat2)
 glmnet_to_table2(fit2, names(dt)) %>% prinf
 
-glmnet_to_table2(fit2, names(dt), s = 10 ^ -2) %>% prinf
-glmnet_to_table2(fit2, s = 10 ^ -2) %>% prinf
+glmnet_to_table2(fit2, var_names = names(dt), s = 10 ^ -2) %>% print(n=Inf)
+glmnet_to_table2(fit2, s = 10 ^ -2) %>% print(n=Inf)
 glmnet_to_table2(fit2)
 coef(fit)
 
-# explore glmnet fit object
+coef_to_table_simple <- function(fit, ..., min_coef=1E-10) {
+  ce <- coef(fit, ...)
+  coef_mat <- as.matrix(ce)
+  tibble::tibble(name = rownames(coef_mat), coef = coef_mat[, 1]) %>%
+    dplyr::filter(abs(coef) >= min_coef) %>%
+    dplyr::arrange(dplyr::desc(coef))
+}
+
+# If var_names is not supplied then this is just coef_to_table_simple().
+coef_to_table <- function(fit, var_names = NULL, ..., min_coef=1E-10) {
+  tbl <- coef_to_table_simple(fit = fit, ..., min_coef = min_coef)
+  if (is.null(var_names)) return(tbl)
+  n_vars <- max(stringr::str_count(tbl$name, ":")) + 1
+  if (n_vars == 1){
+    tbl <- tbl %>%
+      dplyr::mutate(var = match_parent(.data$name, var_names)) %>%
+      dplyr::mutate(level = extract_level(.data$name, .data$var))
+    return(tbl)
+  }
+  nms <- sprintf("name%02d", 1 : n_vars)
+  tbl2 <- select(tbl, name) %>%
+    tidyr::separate(.data$name, nms, sep = ":", remove = FALSE, fill = "right")
+  names_list <- map(2 : ncol(tbl2), ~select(tbl2, .))
+  bind_cols(tbl, map_dfc(names_list, ~expand_interaction(., var_names))) %>%
+    select(name, coef, contains("interact"), everything())
+}
+
+test_split <- function(fit, var_names, s="lambda.1se", min_coef=1E-10) {
+  tbl <- coef_to_table_simple(fit = fit, s = s, min_coef = min_coef)
+  n_vars <- max(stringr::str_count(tbl$name, ":")) + 1
+  if (n_vars == 1){
+    tbl <- tbl %>%
+      dplyr::mutate(var = match_parent(.data$name, var_names)) %>%
+      dplyr::mutate(level = extract_level(.data$name, .data$var))
+    return(tbl)
+  }
+  nms <- sprintf("name%02d", 1 : n_vars)
+  tbl2 <- select(tbl, name) %>%
+    tidyr::separate(.data$name, nms, sep = ":", remove = FALSE, fill = "right")
+  names_list <- map(2 : ncol(tbl2), ~select(tbl2, .))
+  bind_cols(tbl, map_dfc(names_list, ~expand_interaction(., var_names))) %>%
+    select(name, coef, contains("interact"), everything())
+}
+debugonce(coef_to_table)
+coef_to_table(fit, var_names = names(dt), s = 10 ^ -2)
+
+test_split(fit0, var_names = names(dt), s = 10 ^ -2)
+sprintf("name%02d", 1:3)
+
+
+nms <- paste0("name", 1 : 3)
+ x2 <- select(x, name) %>%
+  tidyr::separate(.data$name, nms, sep = ":", remove = FALSE, fill = "right")
+map(2 : ncol(x2), ~x2[, .])
+x_list <- map(2 : ncol(x2), ~select(x2, .))
+expand_interaction(x_list[[1]], names(dt))
+
+expand_interaction <- function(tbl, var_names) {
+  id <- str_extract(names(tbl), "\\d+$")
+#  names(tbl) <- str_remove_all(names(tbl), "\\d*")
+  names(tbl) <- "interact"
+  tbl %>%
+    dplyr::mutate(var = match_parent(.data$interact, var_names)) %>%
+    dplyr::mutate(level = extract_level(.data$interact, .data$var)) %>%
+    setNames(., paste0(names(.), "_", id))
+}
+paste0(names(x), "555")
+
+?setNames
+# explore glmnet fit object---------
 names(fit)
 fit$lambda %>% head
 fit$call
@@ -142,3 +220,49 @@ roc <- roc.glmnet(fit, newx = testx, newy = test$top)
 plot(roc)
 confusion(fit, newx = testx, newy = test$top)
 
+# coef ------
+coef_to_table <- function(fit, ..., min_coef=1E-10) {
+  ce <- coef(fit, ...)
+  coef_mat <- as.matrix(ce)
+  tibble::tibble(name = rownames(coef_mat), coef = coef_mat[, 1]) %>%
+    dplyr::filter(abs(coef) >= min_coef) %>%
+    dplyr::arrange(dplyr::desc(coef))
+}
+
+mt <- as_tibble(mtcars) %>%
+  mutate(across(c(cyl, vs, am, gear, carb), ~factor(., ordered = TRUE)))
+mt
+head(mtcars)
+library(glmnet)
+xmt <- model.matrix(mpg ~ ., data = mt)[, -1]
+lm <- lm(mpg ~ ., data = mtcars)
+glm <- cv.glmnet(xmt, mtcars$mpg, nfolds = 3)
+library(dplyr)
+coef_to_table(lm)
+coef_to_table(glm, s = "lambda.min")
+glmnet_to_table(glm, s = "lambda.min", var_names = names(mt))
+coef(glm, s = "lambda.min")
+
+coef(glm) %>% as.matrix()
+
+# dummy var naming--------
+#See recipes::dummy_names()
+# base::make.names() forces valid names. Only chars, numbers, ., and _ are allowed.
+# Any restricted character is replaced by .
+
+data.frame(`a^b` = 1:3)
+?data.frame
+
+# model.matrix colnames may not be unique e.g. see code
+# In this case, it is impossible to retrieve var & level correctly.b
+n = 20
+f1 <- letters[1:5]
+f2 <- paste0("z", letters[1:5])
+df <- tibble(y = rnorm(n), xz = factor(sample(f1, n, replace = T)),
+             x = factor(sample(f2, n, replace = T)))
+xmat <- model.matrix(y ~., data = df)
+one_hot(y~. , data = df)
+?one_hot
+lm <- lm(y~., data = df)
+coef_to_table(lm) %>% arrange(name)
+?model.matrix
