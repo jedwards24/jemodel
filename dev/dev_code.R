@@ -1,129 +1,16 @@
 
 
-# glmnet tools -------------
+# coef_to_table() -------------
 library(tidyverse)
 library(glmnet)
-#library(glmnetUtils)
-library(edwards)
-#source("funcs/glmnet.R")
-set.seed(21)
-dt <- ggplot2::diamonds %>%
-  dplyr::mutate(top = (cut == "Ideal") %>% factor(levels = c(F, T))) %>%
-  dplyr::select(-cut) %>%
-  dplyr::sample_n(500) %>%
-  dplyr::mutate(clarity = factor(clarity, ordered = F)) #changed to test both types of factors
-dt
-dt$clarity %>% levels
+# There are example glmnet models in tests/testdata/coef/
+fit <- readRDS("tests/testdata/coef/fit_no_inter.RDS")
+fit <- readRDS("tests/testdata/coef/fit_inter_2.RDS")
+fit <- readRDS("tests/testdata/coef/fit_inter_3.RDS")
 
-
-xmat <- model.matrix(top ~ ., dt)[, -1]
-colnames(xmat)
-
-set.seed(22)
-fit0 <- cv.glmnet(x=xmat, y = dt$top, family="binomial", nfolds = 3)
-
-xmat <- model.matrix(top ~ . * table, dt)[, -1]
-colnames(xmat)
-
-set.seed(22)
-fit <- cv.glmnet(x=xmat, y = dt$top, family="binomial", nfolds = 3)
-plot(fit)
-colnames(xmat)
-glmnet_to_table(fit, names(dt), s = "lambda.min")
-glmnet_to_table(fit, names(dt))
-glmnet_to_table(fit)
-gg <- glmnet_to_table(fit, names(dt))
-gg %>% tidyr::separate(.data$name, c("name01", "name02", "nm"), sep = ":", remove = FALSE, fill = "right")
-
-
-glmnet_to_table(fit, names(dt), s = 10^-3)
-glmnet_to_table(fit, s = 10^-3)
-
-tt$name %>% str_extract_all(var_reg)
-tt$name %>% str_remove_all(paste0("(?!((", var_reg, "))).+"))
-
-# multiple interactions
-xmat2 <- model.matrix(top ~ . * color * table, dt)[, -1]
-set.seed(22)
-fit2 <- cv.glmnet(x=xmat2, y = dt$top, family="binomial", nfolds = 3)
-plot(fit2)
-colnames(xmat2)
-glmnet_to_table2(fit2, names(dt)) %>% prinf
-
-glmnet_to_table2(fit2, var_names = names(dt), s = 10 ^ -2) %>% print(n=Inf)
-glmnet_to_table2(fit2, s = 10 ^ -2) %>% print(n=Inf)
-glmnet_to_table2(fit2)
-coef(fit)
-
-coef_to_table_simple <- function(fit, ..., min_coef=1E-10) {
-  ce <- coef(fit, ...)
-  coef_mat <- as.matrix(ce)
-  tibble::tibble(name = rownames(coef_mat), coef = coef_mat[, 1]) %>%
-    dplyr::filter(abs(coef) >= min_coef) %>%
-    dplyr::arrange(dplyr::desc(coef))
-}
-
-# If var_names is not supplied then this is just coef_to_table_simple().
-coef_to_table <- function(fit, var_names = NULL, ..., min_coef=1E-10) {
-  tbl <- coef_to_table_simple(fit = fit, ..., min_coef = min_coef)
-  if (is.null(var_names)) return(tbl)
-  n_vars <- max(stringr::str_count(tbl$name, ":")) + 1
-  if (n_vars == 1){
-    tbl <- tbl %>%
-      dplyr::mutate(var = match_parent(.data$name, var_names)) %>%
-      dplyr::mutate(level = extract_level(.data$name, .data$var))
-    return(tbl)
-  }
-  nms <- sprintf("name%02d", 1 : n_vars)
-  tbl2 <- select(tbl, name) %>%
-    tidyr::separate(.data$name, nms, sep = ":", remove = FALSE, fill = "right")
-  names_list <- map(2 : ncol(tbl2), ~select(tbl2, .))
-  bind_cols(tbl, map_dfc(names_list, ~expand_interaction(., var_names))) %>%
-    select(name, coef, contains("interact"), everything())
-}
-
-test_split <- function(fit, var_names, s="lambda.1se", min_coef=1E-10) {
-  tbl <- coef_to_table_simple(fit = fit, s = s, min_coef = min_coef)
-  n_vars <- max(stringr::str_count(tbl$name, ":")) + 1
-  if (n_vars == 1){
-    tbl <- tbl %>%
-      dplyr::mutate(var = match_parent(.data$name, var_names)) %>%
-      dplyr::mutate(level = extract_level(.data$name, .data$var))
-    return(tbl)
-  }
-  nms <- sprintf("name%02d", 1 : n_vars)
-  tbl2 <- select(tbl, name) %>%
-    tidyr::separate(.data$name, nms, sep = ":", remove = FALSE, fill = "right")
-  names_list <- map(2 : ncol(tbl2), ~select(tbl2, .))
-  bind_cols(tbl, map_dfc(names_list, ~expand_interaction(., var_names))) %>%
-    select(name, coef, contains("interact"), everything())
-}
-debugonce(coef_to_table)
-coef_to_table(fit, var_names = names(dt), s = 10 ^ -2)
-
-test_split(fit0, var_names = names(dt), s = 10 ^ -2)
-sprintf("name%02d", 1:3)
-
-
-nms <- paste0("name", 1 : 3)
- x2 <- select(x, name) %>%
-  tidyr::separate(.data$name, nms, sep = ":", remove = FALSE, fill = "right")
-map(2 : ncol(x2), ~x2[, .])
-x_list <- map(2 : ncol(x2), ~select(x2, .))
-expand_interaction(x_list[[1]], names(dt))
-
-expand_interaction <- function(tbl, var_names) {
-  id <- str_extract(names(tbl), "\\d+$")
-#  names(tbl) <- str_remove_all(names(tbl), "\\d*")
-  names(tbl) <- "interact"
-  tbl %>%
-    dplyr::mutate(var = match_parent(.data$interact, var_names)) %>%
-    dplyr::mutate(level = extract_level(.data$interact, .data$var)) %>%
-    setNames(., paste0(names(.), "_", id))
-}
-paste0(names(x), "555")
-
-?setNames
+as.matrix(coef(fit))
+x <- coef(fit)
+as.matrix(x)
 # explore glmnet fit object---------
 names(fit)
 fit$lambda %>% head

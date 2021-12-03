@@ -26,5 +26,6 @@ Imports:
     ROCR,
     glmnet,
     magrittr,
-    rlang
+    rlang,
+    purrr
 Config/testthat/edition: 3

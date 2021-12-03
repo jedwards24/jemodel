@@ -6,9 +6,16 @@
 
 ## Existing functions
 
-+ Decision on glmnet_to_table() funcs. Add tests.
-+ rang_oob_err(). Currently only works with classification. reanme to rang_num_trees().
-
++ `rang_oob_err()`. Currently only works with classification. rename to rang_num_trees().
++ `coef_to_table()`. 
+    + Review/refactor helper functions.
+    + Extra tests??
+    + Add none_name arg to main func (already in `extract_level()`). Decide how current NAs in table
+    should be displayed ("none", "", NA,...?)
+    + Warning if name decomposition is ambiguous?
+    + Rewrite @return (bullets)?
+    
+    
 ## New functions
 
 These may already be in dev_code().
