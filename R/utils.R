@@ -9,10 +9,10 @@
 #'
 #' Missing values are ignored in all calculations but are included in the returned vector.
 #'
+#' `base::scale()` is similar to `standardise()` but adds attributes
 #' @param x A numeric vector.
 #'
 #' @export
-# base::scale() is a similar option but adds attributes
 standardise <- function(x) {
   if (!is.numeric(x) | !is.atomic(x))
     stop("`x` must be an atomic numeric vector.", call. = FALSE)
@@ -30,4 +30,3 @@ normalise <- function(x) {
     stop("`x` must have at least two non-missing values.", call. = FALSE)
   (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
 }
-

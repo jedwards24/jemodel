@@ -2,8 +2,6 @@
 
 ## General
 
-+ NEWS file.
-
 ## Existing functions
 
 + `rang_oob_err()`. Currently only works with classification. rename to rang_num_trees().
@@ -15,10 +13,5 @@
     + Warning if name decomposition is ambiguous?
     + Rewrite @return (bullets)?
     
-    
 ## New functions
 
-These may already be in dev_code().
-
-+ pdp functions (already written but not in package)
-+ glmnet output functions

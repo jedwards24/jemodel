@@ -21,4 +21,6 @@ in [0,1].
 }
 
 Missing values are ignored in all calculations but are included in the returned vector.
+
+\code{base::scale()} is similar to \code{standardise()} but adds attributes
 }

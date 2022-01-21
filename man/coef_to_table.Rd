@@ -2,12 +2,9 @@
 % Please edit documentation in R/coef.R
 \name{coef_to_table}
 \alias{coef_to_table}
-\alias{coef_to_table_simple}
 \title{Summarise model coefficients in a table}
 \usage{
 coef_to_table(fit, var_names = NULL, ..., min_coef = 1e-10)
-
-coef_to_table_simple(fit, ..., min_coef = 1e-10)
 }
 \arguments{
 \item{fit}{A fitted model with coefficients (e.g. from glmnet).}
@@ -40,4 +37,3 @@ original variable and factor level names. See "Value" below for more details.
 
 This was designed for glmnet models, but it also often works with other glm-type models.
 }
-\keyword{internal}

@@ -134,11 +134,8 @@ coef(glm) %>% as.matrix()
 
 # dummy var naming--------
 #See recipes::dummy_names()
-# base::make.names() forces valid names. Only chars, numbers, ., and _ are allowed.
-# Any restricted character is replaced by .
-
-data.frame(`a^b` = 1:3)
-?data.frame
+# base::make.names() forces valid names in data frames. Only chars, numbers, ., and _ are allowed.
+# Any restricted character is replaced by "."
 
 # model.matrix colnames may not be unique e.g. see code
 # In this case, it is impossible to retrieve var & level correctly.b

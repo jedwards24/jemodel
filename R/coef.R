@@ -42,9 +42,13 @@ coef_to_table <- function(fit, var_names = NULL, ..., min_coef=1E-10) {
     dplyr::select(.data$name, .data$coef, dplyr::contains("interact"), dplyr::everything())
 }
 
-# Performs the simpler part of `coef_to_table()` without the name breakdown.
-#' @rdname coef_to_table
-#' @keywords internal
+#' Summarise model coefficients in a table
+#'
+#' Performs the simpler part of `coef_to_table()` without the name breakdown.
+#' @param fit A fitted model with coefficients.
+#' @param ... Parameters passed to `coef()`.
+#' @param min_coef Coefficients with smaller absolute value than this are excluded from the table.
+#' @noRd
 coef_to_table_simple <- function(fit, ..., min_coef=1E-10) {
   ce <- coef(fit, ...)
   coef_mat <- as.matrix(ce)
@@ -61,7 +65,7 @@ coef_to_table_simple <- function(fit, ..., min_coef=1E-10) {
 #'
 #' @param level_names Character vector to find parents for.
 #' @param parent_names Character vector of candidate parents.
-#' @keywords internal
+#' @noRd
 match_parent <- function(level_names, parent_names) {
   nn <- length(level_names)
   parent <- character(nn)
@@ -87,7 +91,7 @@ match_parent <- function(level_names, parent_names) {
 #' @param name_vec Character vector of model.matrix names.
 #' @param feature_vec Character vector of feature names corresponding to `name_vec`.
 #' @param none_name String to use when there is no level or interaction in a model name.
-#' @keywords internal
+#' @noRd
 extract_level <- function(name_vec, feature_vec, none_name = NA_character_) {
   levels <- stringr::str_remove_all(name_vec, stringr::fixed(feature_vec)) %>%
     stringr::str_remove_all(":.*")
@@ -104,7 +108,7 @@ extract_level <- function(name_vec, feature_vec, none_name = NA_character_) {
 #'
 #' @param tbl A tibble with one column called `name_dd` where "dd" are digits.
 #' @param var_names A character vector of column names for the data used in `tbl`.
-#' @keywords internal
+#' @noRd
 expand_interaction <- function(tbl, var_names) {
   id <- stringr::str_extract(names(tbl), "\\d+$")
   names(tbl) <- "interact"

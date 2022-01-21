@@ -1,6 +1,3 @@
-
-
-
 #' Model matrix with one-hot encoding for unordered factors
 #'
 #' This replicates `model.matrix()` but with one-hot encoding
