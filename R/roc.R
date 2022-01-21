@@ -1,7 +1,3 @@
-#########################################################################################
-# roc_cut: Optimal cut for ROC curve.
-#########################################################################################
-#'
 #' Optimal cut for ROC curve
 #'
 #' Calculates the "optimal" cutoff for a classifier from a ROC curve. This is the cutoff that minimises the
@@ -44,10 +40,6 @@ roc_cut <- function(pred, actual, plot = T) {
     auc = unlist(ROCR::performance(roc_pred, measure = "auc")@y.values))
 }
 
-#########################################################################################
-# roc_plot: Plots ROC curves for training and test data.
-#########################################################################################
-#'
 #' Plots ROC curves for training and test data.
 #'
 #' Returns a ggplot of a ROC curve from prediction and target vectors. These are partitioned by the argument

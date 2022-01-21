@@ -1,7 +1,9 @@
-#########################################################################################
-# rang_roc_cut: ROC curve optimal cut for a ranger object.
-#########################################################################################
-#'
+# Functions in script:
+#   - rang_roc_cut().
+#   - rang_mtry().
+#   - rang_oob_err().
+######################
+
 #' ROC curve optimal cut for a ranger object
 #'
 #' Calls `roc_cut()` for a fitted ranger model. See `roc_cut()` for details. Requires
@@ -33,9 +35,6 @@ rang_roc_cut <- function(rf, actual, class_name = NULL, plot = TRUE) {
   roc_cut(rf$predictions[, class_name], actual, plot = plot)
 }
 
-#########################################################################################
-# rang_mtry: Tune ranger models for mtry.
-#########################################################################################
 #' Tune ranger models for `mtry`
 #'
 #' Fits `ranger()` models for a given range of values of `mtry`. Output is a table and graph giving
@@ -83,10 +82,6 @@ rang_mtry <- function(data, fmla, m_vec, seed = 1, num.trees = 200, respect.unor
   res
 }
 
-#########################################################################################
-# oob_errors: Helper for rang_oob_err().
-#########################################################################################
-#'
 #' Helper for `rang_oob_err()`
 #'
 #' Returns vector of error indicators chosen by majority vote. Where the vote is split the entry wil be 0.5.
@@ -109,10 +104,6 @@ oob_errors <- function(oob_mat, n_trees, target) {
   err_vec
 }
 
-#########################################################################################
-# rang_oob_err: Out-of-bag error rates by number of trees for a ranger random forest.
-#########################################################################################
-#'
 #' Out-of-bag error rates by number of trees for a ranger random forest
 #'
 #' Returns a table of out-of-bag error rates for a ranger random forest using number of trees
