@@ -2,7 +2,7 @@
 
 export("%>%")
 export(coef_to_table)
-export(contr_one_hot)
+export(contrast_one_hot)
 export(normalise)
 export(one_hot)
 export(rang_mtry)

@@ -24,5 +24,5 @@ set in \code{options("contrasts")}. By default, the first column of the model ma
 (the intercept) is removed.
 }
 \details{
-The contrast function used is \code{contr_one_hot()}.
+The contrast function used is \code{contrast_one_hot()}.
 }
