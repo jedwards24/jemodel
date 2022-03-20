@@ -7,3 +7,8 @@ test_that("Standardise and normalise work", {
   expect_equal(standardise(x), c(1, 0, -1, NA))
   expect_equal(normalise(x), c(1, 0.5, 0, NA))
 })
+
+test_that("ilogit() works", {
+  x <- c(-Inf, 0, 1, 30, 800, NA, Inf)
+  expect_equal(ilogit(x), c(0, 0.5, exp(1)/(1 + exp(1)), 1, 1, NA, 1))
+})

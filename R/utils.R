@@ -30,3 +30,25 @@ normalise <- function(x) {
     stop("`x` must have at least two non-missing values.", call. = FALSE)
   (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
 }
+
+#' Vectorised inverse logit function
+#'
+#' Calculate the inverse logit function \eqn{exp(x) / (1 + exp(x))}. Modified from Faraway package.
+#' I added a check on `x` to avoid `NaN` in the output, which would occur when `x` is greater than
+#' about 750. Since \eqn{exp(x) / (1 + exp(x)) = 1} for \eqn{x>=20}, I only check for x > 20 and
+#' output 1 for these cases.
+#'
+#' @param x A numeric vector.
+#' @return exp(x)/(1+exp(x))
+#'
+#' @export
+ilogit <- function(x){
+  if(any(omit <- is.na(x))){
+    lv <- x
+    lv[omit] <- NA
+    if(any(!omit))
+      lv[!omit] <- Recall(x[!omit])
+    return(lv)
+  }
+  ifelse(x > 20, 1, exp(x)/(1 + exp(x)))
+}

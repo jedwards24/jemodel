@@ -3,6 +3,7 @@
 export("%>%")
 export(coef_to_table)
 export(contrast_one_hot)
+export(ilogit)
 export(normalise)
 export(one_hot)
 export(rang_mtry)
