@@ -1,4 +1,11 @@
+# Check to add to coef_to_table() if not importing glmnet----------
+# ...if glmnet is just Suggests
 
+if (any(class(fit) %in% c("glmnet", "cv.glmnet"))){
+  if (!requireNamespace("glmnet", quietly = TRUE)){
+    stop("Package \"glmnet\" must be installed to use this function with glmnet `fit`.", call. = FALSE)
+  }
+}
 
 # coef_to_table() -------------
 library(tidyverse)
