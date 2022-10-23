@@ -1,5 +1,5 @@
 #' @keywords internal
-#' @importFrom dplyr if_else
+#' @importFrom dplyr if_else tibble
 #' @importFrom stats predict coef model.matrix
 #' @importFrom rlang .data :=
 #' @importFrom glmnet coef.glmnet

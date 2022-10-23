@@ -1,8 +1,8 @@
 test_that("coef_to_table() works", {
-  fit1 <- readRDS("../testdata/coef/fit_no_inter.RDS")
-  fit2 <- readRDS("../testdata/coef/fit_inter_2.RDS")
-  fit3 <- readRDS("../testdata/coef/fit_inter_3.RDS")
-  col_names <- readRDS("../testdata/coef/col_names.RDS")
+  fit1 <- readRDS(test_path("testdata", "coef", "fit_no_inter.RDS"))
+  fit2 <- readRDS(test_path("testdata", "coef", "fit_inter_2.RDS"))
+  fit3 <- readRDS(test_path("testdata", "coef", "fit_inter_3.RDS"))
+  col_names <- readRDS(test_path("testdata", "coef", "col_names.RDS"))
   tbl1 <- coef_to_table(fit1, var_names = col_names)
   tbl2 <- coef_to_table(fit2, var_names = col_names)
   tbl3 <- coef_to_table(fit3, var_names = col_names)
@@ -11,4 +11,9 @@ test_that("coef_to_table() works", {
   expect_equal(ncol(tbl2), 8L)
   expect_equal(ncol(tbl3), 11L)
   expect_equal(names(tbl4), c("name", "coef"))
+  # test min_coef
+  t1 <- coef_to_table(fit1)
+  t2 <- coef_to_table(fit1, min_coef = 0)
+  expect_lte(nrow(t1), nrow(t2))
+  expect_true(all(t1$name %in% t2$name))
 })
