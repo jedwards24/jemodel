@@ -1,0 +1,25 @@
+---
+title: "Model notes"
+output: html_document
+---
+
+This is to capture any notes relating to development of functions to help with ML modelling. I've tried a lot of things in different projects and have no central record or follow-up on what I've tried or what is worth developing further.
+
+The initial aim is to capture all the bits I have in one place. It will probably be very messy for a while. 
+
+# Notes Capture
+
+Ranger specifies level as column name in probability tree predictions and defaults to first level as event. If levels are TRUE and FALSE (even as characters), then the column names will be in backticks, which adds an extra overhead. Also, TRUE/FALSE-type levels can be confusing when talking about the "true" outcome (as opposed to predicted). 
+
+yardstick needs factors for levels.
+
+glmnet handles any target form (as long as binary), since `family = "binomial"` controls the use of binary logistic regression. The second level is treated as the "event" level. This works as expected for 0/1 or TRUE/FALSE targets but might be wrong for character or factors. glmnet treats the second level as the event level when predicting. 
+
+`predict.glmnet()` by default gives predictions on the link scale so use `type = response` argument for probability response for logistic reg. Output is a matrix with one column with predictions for event level (the column name is `"1"`. For multinomial, probabilities are given for each level with levels as column names. 
+
+Classnames can be retrieved from a cv.glmnet object with `fit$glmnet.fit$classnames`.
+
+yardstick calls pROC for ROC/AUC. Available funcs are not as general as in ROCR (cannot change what is on axes e.g. precision/recall). Does have `pr_curve()` func. 
+
+
+
