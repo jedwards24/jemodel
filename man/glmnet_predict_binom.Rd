@@ -9,9 +9,11 @@ glmnet_predict_binom(fit, newx, type = "response", ...)
 \arguments{
 \item{fit}{A model fitted with \code{glmnet::cv.glmnet()}.}
 
-\item{newx}{Matrix of \code{x} values at which predictions are to be made. See \code{glmnet::predict.glmnet()}.}
+\item{newx}{Matrix of new values for \code{x} at which predictions are to be made. See \code{glmnet::predict.glmnet()}.}
 
 \item{type}{Passed to \code{predict()} with default "response". See \code{?glmnet::predict.glmnet}.}
+
+\item{...}{Other arguments passed to \code{predict()}.}
 }
 \value{
 A tibble of prediction probabilities with a column for each class.

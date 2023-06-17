@@ -35,11 +35,11 @@ coef_to_table <- function(fit, var_names = NULL, ..., min_coef=1E-10) {
     return(tbl)
   }
   nms <- sprintf("name%02d", 1 : n_vars)
-  tbl2 <- dplyr::select(tbl, .data$name) %>%
+  tbl2 <- dplyr::select(tbl, "name") %>%
     tidyr::separate(.data$name, nms, sep = ":", remove = FALSE, fill = "right")
   names_list <- purrr::map(2 : ncol(tbl2), ~dplyr::select(tbl2, dplyr::all_of(.)))
   dplyr::bind_cols(tbl, purrr::map_dfc(names_list, ~expand_interaction(., var_names))) %>%
-    dplyr::select(.data$name, .data$coef, dplyr::contains("interact"), dplyr::everything())
+    dplyr::select("name", "coef", dplyr::contains("interact"), dplyr::everything())
 }
 
 #' Summarise model coefficients in a table
