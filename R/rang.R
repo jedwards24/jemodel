@@ -119,7 +119,8 @@ oob_errors <- function(oob_mat, n_trees, target) {
 #' @export
 rang_oob_err <- function(rf, data, start = 5L, by = 5L, plot = TRUE) {
   if (!("inbag.counts" %in% names(rf))){
-    stop("`inbag.counts` not found in `rf`. Must use `keep.inbag = T` when fitting `rf`.", call. = FALSE)
+    stop("`inbag.counts` not found in `rf`. Must use `keep.inbag = TRUE` when fitting `rf`.",
+         call. = FALSE)
   }
   nn <- nrow(data)
   ntr <- rf$num.trees
@@ -133,7 +134,8 @@ rang_oob_err <- function(rf, data, start = 5L, by = 5L, plot = TRUE) {
   for (i in 1 : ntr){
     inbag_mat[, i] <- rf$inbag.counts[[i]]
   }
-  oob_mat <- dplyr::if_else(inbag_mat > 0, NA_real_, predict(rf, data, predict.all = TRUE)$predictions) %>%
+  preds <- c(predict(rf, data, predict.all = TRUE)$predictions)
+  oob_mat <- dplyr::if_else(c(inbag_mat) > 0, NA_real_, preds) %>%
     matrix(nrow = nrow(inbag_mat))
 
   len_ntv <- length(n_trees_vec)
@@ -146,7 +148,7 @@ rang_oob_err <- function(rf, data, start = 5L, by = 5L, plot = TRUE) {
                 class_1 = colMeans(errs[target == 1, ], na.rm = TRUE),
                 class_2 = colMeans(errs[target == 2, ], na.rm = TRUE)
   )
-  res_long <- tidyr::gather(res, key = "pred", value = "error_rate", -.data$num.trees)
+  res_long <- tidyr::pivot_longer(res, !c("num.trees"), names_to = "pred", values_to = "error_rate")
   if (plot){
     g <- ggplot2::ggplot(res_long, ggplot2::aes(x = .data$num.trees, y = .data$error_rate, color = .data$pred)) +
       ggplot2::geom_line() +

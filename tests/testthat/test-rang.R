@@ -10,7 +10,7 @@ dt <- dplyr::select(dt, -cut)
 test_that("rang_oob_error() works", {
   rf <- ranger::ranger(top ~ . , dt, seed = 20, keep.inbag = TRUE, num.trees = 200)
   rf2 <- ranger::ranger(top ~ . , dt, seed = 20, keep.inbag = FALSE, num.trees = 20)
-  expect_error(rang_oob_err(rf2, dt, plot = FALSE), "Must use `keep.inbag = T`")
+  expect_error(rang_oob_err(rf2, dt, plot = FALSE), "Must use `keep.inbag = TRUE`")
 #  expect_known_hash(rang_oob_err(rf, dt, plot = FALSE), hash = "5cb256f2ca")
   expect_snapshot_value(rang_oob_err(rf, dt, plot = FALSE), style = "serialize")
 })
